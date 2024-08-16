@@ -16,78 +16,36 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/platformio/platform-nordicnrf52.git"
+    "url": "https://github.com/positron96/platform-nordicnrf52"
   },
   "version": "10.6.0",
   "frameworks": {
-    "arduino": {
-      "package": "framework-arduinonordicnrf5",
-      "script": "builder/frameworks/arduino.py"
-    },
-    "mbed": {
-      "package": "framework-mbed",
-      "script": "builder/frameworks/mbed.py"
-    },
-    "zephyr": {
-      "package": "framework-zephyr",
-      "script": "builder/frameworks/zephyr.py"
+    "nrf5sdk": {
+      "package": "framework-nrf5sdk",
+      "script": "builder/frameworks/nrf5sdk.py",
+      "version": "~1.170100.0"
     }
   },
   "packages": {
     "toolchain-gccarmnoneeabi": {
       "type": "toolchain",
       "owner": "platformio",
-      "version": ">=1.60301.0,<1.80000.0",
+      "version": ">=1.60301.0,<1.110000.0",
       "optionalVersions": [
         "~1.70201.0",
         "~1.80201.0",
         "~1.90201.0"
       ]
     },
-    "framework-mbed": {
+    "framework-nrf5sdk": {
       "type": "framework",
       "optional": true,
-      "owner": "platformio",
-      "version": "~6.61700.0"
-    },
-    "framework-arduinoadafruitnrf52": {
-      "type": "framework",
-      "optional": true,
-      "owner": "platformio",
-      "version": "~1.10601.0"
-    },
-    "framework-arduinonordicnrf5": {
-      "type": "framework",
-      "optional": true,
-      "owner": "platformio",
-      "version": "~1.800.0"
-    },
-    "framework-arduino-mbed": {
-      "type": "framework",
-      "optional": true,
-      "owner": "platformio",
-      "version": "~4.1.5"
-    },
-    "framework-cmsis": {
-      "type": "framework",
-      "optional": true,
-      "owner": "platformio",
-      "version": "~2.50700.0"
-    },
-    "framework-zephyr": {
-      "type": "framework",
-      "optional": true,
-      "owner": "platformio",
-      "version": "~2.20701.0"
+      "version": ""
     },
     "tool-adafruit-nrfutil": {
       "owner": "platformio",
       "optional": true,
       "version": "~1.503.0"
-    },
-    "tool-sreccat": {
-      "owner": "platformio",
-      "version": "~1.164.0"
     },
     "tool-openocd": {
       "type": "uploader",
@@ -107,31 +65,9 @@
       "owner": "platformio",
       "version": "^1.63208.0"
     },
-    "tool-bossac-nordicnrf52": {
-      "type": "uploader",
-      "optional": true,
+    "tool-sreccat": {
       "owner": "platformio",
-      "version": "~1.10901.0"
-    },
-    "tool-cmake": {
-      "optional": true,
-      "owner": "platformio",
-      "version": "~3.21.0"
-    },
-    "tool-dtc": {
-      "optional": true,
-      "owner": "platformio",
-      "version": "~1.4.7"
-    },
-    "tool-ninja": {
-      "optional": true,
-      "owner": "platformio",
-      "version": "^1.7.0"
-    },
-    "tool-gperf": {
-      "optional": true,
-      "owner": "platformio",
-      "version": "^3.0.0"
+      "version": "~1.164.0"
     }
   }
 }
