@@ -1,11 +1,8 @@
 {
     "build": {
-      "core": "nRF5",
       "cpu": "cortex-m4",
-      "extra_flags": "-DARDUINO_GENERIC",
       "f_cpu": "64000000L",
-      "mcu": "nrf52810_xxaa",
-      "variant": "Generic"
+      "mcu": "nrf52810_xxaa"
     },
     "connectivity": [
       "bluetooth"

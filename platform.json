@@ -40,7 +40,7 @@
     "framework-nrf5sdk": {
       "type": "framework",
       "optional": true,
-      "version": ""
+      "version": "https://github.com/positron96/framework-nrf5sdk.git"
     },
     "tool-adafruit-nrfutil": {
       "owner": "platformio",
