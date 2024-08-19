@@ -1,6 +1,7 @@
 import sys
 from os.path import isdir, join
 from os import listdir
+import re
 
 from SCons.Script import DefaultEnvironment
 
@@ -100,7 +101,6 @@ env.Append(
 env.Append(CPPPATH=[join(sdk_dir, s) for s in sdk_includes])
 
 if softdevice:
-
     env.Append(
         CPPPATH=[        
             join(components_dir, 'softdevice', softdevice, 'headers'),
@@ -150,12 +150,35 @@ env.Append(
     ASFLAGS=env.get("CCFLAGS", [])[:]
 )
 
+def get_linker_sizes(ld_file: str):
+    """Very hacky way to read flash/ram size from ld file. """
+    try:
+        with open(ld_file, 'r') as f:
+            all = f.read()
+            flash = re.findall('FLASH.*ORIGIN\s*=\s*(\w*),\s*LENGTH\s*=\s*(\w*)', all)
+            flash = flash[0]
+            ram =  re.findall('RAM.*ORIGIN\s*=\s*(\w*),\s*LENGTH\s*=\s*(\w*)', all)
+            ram = ram[0]
+            return int(flash[1], 0), int(ram[1], 0)
+    except IndexError:
+        return None
+    return None
+
+
 ldscript = board.get('build.ldscript', '')
-if not ldscript:    
+if ldscript:    
+    ldscript = join(sdk_dir, ldscript)
+else:
     # sdk_ldscript = join(components_dir, 'softdevice', softdevice, 'toolchain', 'armgcc')
     sdk_ldscript = join(sdk_dir, 'config', mcu_short, 'armgcc')
     scripts = listdir(sdk_ldscript)
-    env.Replace(LDSCRIPT_PATH=join(sdk_ldscript, scripts[0]))
+    if scripts:
+        ldscript = join(sdk_ldscript, scripts[0])
+        env.Replace(LDSCRIPT_PATH=ldscript)
+
+sizes = get_linker_sizes(ldscript)
+board.update("upload.maximum_size", str(sizes[0]))
+board.update("upload.maximum_ram_size", str(sizes[1]))
 
 
 bootloader_opts = board.get("bootloaders", "")
