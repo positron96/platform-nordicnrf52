@@ -101,9 +101,10 @@ env.Append(
 env.Append(CPPPATH=[join(sdk_dir, s) for s in sdk_includes])
 
 if softdevice:
+    softdevice_dir = join(components_dir, 'softdevice', softdevice)
     env.Append(
         CPPPATH=[        
-            join(components_dir, 'softdevice', softdevice, 'headers'),
+            join(softdevice, 'headers'),
             join(components_dir, 'softdevice', 'common'),    
         ],
         CPPDEFINES=[
@@ -111,6 +112,10 @@ if softdevice:
             'SOFTDEVICE_PRESENT',
         ],
     )
+    hex_dir = join(softdevice_dir, 'hex')
+    hex_files = [f for f in listdir(hex_dir) if '.hex' in f]
+    assert len(hex_files) > 0
+    env.Replace(SOFTDEVICEHEX=hex_files[0])
 else:
     env.Append(
         CPPPATH=[    
