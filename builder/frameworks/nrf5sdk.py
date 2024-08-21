@@ -93,7 +93,7 @@ env.Append(
         '-L{}'.format(join(nrfx_dir, 'mdk')),  # nrf_common.ld
     ],
 
-    LIBSOURCE_DIRS=[lib_dir],
+    LIBSOURCE_DIRS=[join(FRAMEWORK_DIR, 'libraries')],
 
     LIBS=["m"]
 )
@@ -160,10 +160,8 @@ def get_linker_sizes(ld_file: str):
     try:
         with open(ld_file, 'r') as f:
             all = f.read()
-            flash = re.findall('FLASH.*ORIGIN\s*=\s*(\w*),\s*LENGTH\s*=\s*(\w*)', all)
-            flash = flash[0]
-            ram =  re.findall('RAM.*ORIGIN\s*=\s*(\w*),\s*LENGTH\s*=\s*(\w*)', all)
-            ram = ram[0]
+            flash = re.findall('FLASH.*ORIGIN\s*=\s*(\w*),\s*LENGTH\s*=\s*(\w*)', all)[0]
+            ram =  re.findall('RAM.*ORIGIN\s*=\s*(\w*),\s*LENGTH\s*=\s*(\w*)', all)[0]
             return int(flash[1], 0), int(ram[1], 0)
     except IndexError:
         return None
@@ -172,7 +170,7 @@ def get_linker_sizes(ld_file: str):
 
 ldscript = board.get('build.ldscript', '')
 if ldscript:    
-    ldscript = join(sdk_dir, ldscript)
+    pass
 else:
     # sdk_ldscript = join(components_dir, 'softdevice', softdevice, 'toolchain', 'armgcc')
     sdk_ldscript = join(sdk_dir, 'config', mcu_short, 'armgcc')
