@@ -25,6 +25,8 @@ softdevice = env.GetProjectOption('custom_sdk_softdevice', '').lower()
 mcu_long = board.get("build.mcu", "")  # e.g. nrf52832_xxaa
 mcu_short = mcu_long.split('_', maxsplit=1)[0]  # e.g. nrf52832
 
+env.Replace(SDK_DIR=sdk_dir)
+
 env.Append(
     ASFLAGS=["-x", "assembler-with-cpp"],
 
@@ -115,7 +117,7 @@ if softdevice:
     hex_dir = join(softdevice_dir, 'hex')
     hex_files = [f for f in listdir(hex_dir) if '.hex' in f]
     assert len(hex_files) > 0
-    env.Replace(SOFTDEVICEHEX=hex_files[0])
+    env.Replace(SOFTDEVICEHEX=join(hex_dir, hex_files[0]))
 else:
     env.Append(
         CPPPATH=[    

@@ -102,7 +102,7 @@ env.Append(
             ]), "Building $TARGET"),
             suffix=".hex"
         ),
-        MergeHex=Builder(
+        AddSoftDeviceToHex=Builder(
             action=env.VerboseAction(" ".join([
                 '"%s"' % join(platform.get_package_dir("tool-sreccat") or "",
                      "srec_cat"),
@@ -192,12 +192,8 @@ if "nobuild" in COMMAND_LINE_TARGETS:
     target_firm = join("$BUILD_DIR", "${PROGNAME}.hex")
 else:
     target_elf = env.BuildProgram()
-
-    if "SOFTDEVICEHEX" in env:
-        target_firm = env.MergeHex(
-            join("$BUILD_DIR", "${PROGNAME}"),
-            env.ElfToHex(join("$BUILD_DIR", "userfirmware"), target_elf))
-    elif "nrfutil" == upload_protocol:
+      
+    if "nrfutil" == upload_protocol:
         target_firm = env.PackageDfu(
             join("$BUILD_DIR", "${PROGNAME}"),
             env.ElfToHex(join("$BUILD_DIR", "${PROGNAME}"), target_elf))
@@ -424,6 +420,42 @@ else:
 
 env.AddPlatformTarget("upload", target_firm, upload_actions, "Upload")
 
+
+if "SOFTDEVICEHEX" in env:
+
+    #
+    # Target: merge with softdevice
+    #
+
+    merged_hex = env.AddSoftDeviceToHex(
+        join("$BUILD_DIR", "${PROGNAME}_with_sd"),
+        env.ElfToHex(join("$BUILD_DIR", "userfirmware"), target_elf))
+    merged_size = env.AddTarget(
+        "merged-size",
+        merged_hex,
+        env.VerboseAction("$SIZEPRINTCMD", "Calculating size $SOURCE"),
+        "Merged Size",
+        "Calculate medged size",
+    )    
+    target_merged = env.AddPlatformTarget(
+        "build-merged",
+        merged_size,
+        [],
+        "Build with softdevice",
+        "Create .hex with firmware and softdevice",
+    )
+
+    #
+    # Target: upload softdevice only
+    #
+
+    env.AddPlatformTarget(
+        "upload-softdevice",
+        env['SOFTDEVICEHEX'],
+        upload_actions,
+        "Upload softdevice",
+        "Upload only softdevice"
+    )
 
 #
 # Target: Erase Flash
