@@ -56,7 +56,7 @@ env.Append(
         mcu_long.upper(),
     ],
 
-    # LIBPATH=[        
+    # LIBPATH=[
     # ],
 
     # includes
@@ -105,9 +105,9 @@ env.Append(CPPPATH=[join(sdk_dir, s) for s in sdk_includes])
 if softdevice:
     softdevice_dir = join(components_dir, 'softdevice', softdevice)
     env.Append(
-        CPPPATH=[        
+        CPPPATH=[
             join(softdevice, 'headers'),
-            join(components_dir, 'softdevice', 'common'),    
+            join(components_dir, 'softdevice', 'common'),
         ],
         CPPDEFINES=[
             softdevice.upper(),
@@ -120,7 +120,7 @@ if softdevice:
     env.Replace(SOFTDEVICEHEX=join(hex_dir, hex_files[0]))
 else:
     env.Append(
-        CPPPATH=[    
+        CPPPATH=[
             join(components_dir, 'drivers_nrf', 'nrf_soc_nosd'),
         ],
     )
@@ -163,7 +163,7 @@ def get_linker_sizes(ld_file: str):
         with open(ld_file, 'r') as f:
             all = f.read()
             flash = re.findall('FLASH.*ORIGIN\s*=\s*(\w*),\s*LENGTH\s*=\s*(\w*)', all)[0]
-            ram =  re.findall('RAM.*ORIGIN\s*=\s*(\w*),\s*LENGTH\s*=\s*(\w*)', all)[0]
+            ram = re.findall('RAM.*ORIGIN\s*=\s*(\w*),\s*LENGTH\s*=\s*(\w*)', all)[0]
             return int(flash[1], 0), int(ram[1], 0)
     except IndexError:
         return None
@@ -171,7 +171,7 @@ def get_linker_sizes(ld_file: str):
 
 
 ldscript = board.get('build.ldscript', '')
-if ldscript:    
+if ldscript:
     pass
 else:
     # sdk_ldscript = join(components_dir, 'softdevice', softdevice, 'toolchain', 'armgcc')
@@ -209,13 +209,11 @@ if bootloader_opts:
         board.update("upload.maximum_size", board.get("upload.maximum_size") - 53248)
         board.update("upload.maximum_ram_size", board.get("upload.maximum_ram_size") - 8)
 
-libs = []
 
-libs.append(
-    env.BuildLibrary(
-        join("$BUILD_DIR", "sdk_files"),
-        sdk_dir,
-        ['+<{}>'.format(s) for s in sdk_files]
-    ))
+env.BuildSources(
+    join("$BUILD_DIR", "sdk_files"),
+    sdk_dir,
+    ['+<{}>'.format(s) for s in sdk_files]
+)
 
-env.Prepend(LIBS=libs)
+# env.Prepend(LIBS=libs)
