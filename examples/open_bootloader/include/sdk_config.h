@@ -852,7 +852,7 @@
 // <i> The nRF SW cryptography backend (only used in bootloader context).
 //==========================================================
 #ifndef NRF_CRYPTO_BACKEND_NRF_SW_ENABLED
-#define NRF_CRYPTO_BACKEND_NRF_SW_ENABLED 1
+#define NRF_CRYPTO_BACKEND_NRF_SW_ENABLED  1
 #endif
 // <q> NRF_CRYPTO_BACKEND_NRF_SW_HASH_SHA256_ENABLED  - nRF SW hash backend support for SHA-256
 
@@ -1042,7 +1042,7 @@
 // <i> When signed updates are required, version checking should always be enabled.
 
 #ifndef NRF_DFU_APP_DOWNGRADE_PREVENTION
-#define NRF_DFU_APP_DOWNGRADE_PREVENTION 1
+#define NRF_DFU_APP_DOWNGRADE_PREVENTION 0
 #endif
 
 // <q> NRF_DFU_EXTERNAL_APP_VERSIONING  - Require versioning for external applications.
@@ -1082,7 +1082,7 @@
 
 
 #ifndef NRF_DFU_REQUIRE_SIGNED_APP_UPDATE
-#define NRF_DFU_REQUIRE_SIGNED_APP_UPDATE 1
+#define NRF_DFU_REQUIRE_SIGNED_APP_UPDATE  0
 #endif
 
 // <q> NRF_DFU_SINGLE_BANK_APP_UPDATES  - Place the application and the SoftDevice directly where they are supposed to be.
