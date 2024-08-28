@@ -14,11 +14,11 @@ assert isdir(FRAMEWORK_DIR)
 
 sdk_dir = join(FRAMEWORK_DIR, 'sdk')
 components_dir = join(sdk_dir, 'components')
-lib_dir = join(sdk_dir, 'libraries')
+sdk_lib_dir = join(components_dir, 'libraries')
 nrfx_dir = join(sdk_dir, 'modules', 'nrfx')
 
-sdk_files = env.GetProjectConfig().parse_multi_values(env.GetProjectOption('custom_sdk_files'))
-sdk_includes = env.GetProjectConfig().parse_multi_values(env.GetProjectOption('custom_sdk_includes'))
+sdk_files = env.GetProjectConfig().parse_multi_values(env.GetProjectOption('custom_sdk_files', ''))
+sdk_includes = env.GetProjectConfig().parse_multi_values(env.GetProjectOption('custom_sdk_includes', ''))
 
 softdevice = env.GetProjectOption('custom_sdk_softdevice', '').lower()
 
@@ -26,6 +26,9 @@ mcu_long = board.get("build.mcu", "")  # e.g. nrf52832_xxaa
 mcu_short = mcu_long.split('_', maxsplit=1)[0]  # e.g. nrf52832
 
 env.Replace(SDK_DIR=sdk_dir)
+
+if sdk_includes:
+    env.Append(CPPPATH=[join(sdk_dir, s) for s in sdk_includes])
 
 env.Append(
     ASFLAGS=["-x", "assembler-with-cpp"],
@@ -71,13 +74,13 @@ env.Append(
         # join(nrfx_dir, 'templates', mcu_short),  # nrfx_config.h examples are here
         # join(sdk_dir, 'config', mcu_short, 'config'),
         join(components_dir, 'boards'),
-        join(lib_dir, 'bsp'),
-        join(lib_dir, 'cli'),
-        join(lib_dir, 'timer'),
-        join(lib_dir, 'log'),
-        join(lib_dir, 'button'),
-        join(lib_dir, 'util'),
-        join(lib_dir, 'delay'),
+        join(sdk_lib_dir, 'bsp'),
+        join(sdk_lib_dir, 'cli'),
+        join(sdk_lib_dir, 'timer'),
+        join(sdk_lib_dir, 'log'),
+        join(sdk_lib_dir, 'button'),
+        join(sdk_lib_dir, 'util'),
+        join(sdk_lib_dir, 'delay'),
         join(components_dir, 'toolchain', 'cmsis', 'include'),
         join(env.subst("${PROJECT_INCLUDE_DIR}")),  # sdk_config.h should be here
     ],
@@ -99,8 +102,6 @@ env.Append(
 
     LIBS=["m"]
 )
-
-env.Append(CPPPATH=[join(sdk_dir, s) for s in sdk_includes])
 
 if softdevice:
     softdevice_dir = join(components_dir, 'softdevice', softdevice)
@@ -210,10 +211,11 @@ if bootloader_opts:
         board.update("upload.maximum_ram_size", board.get("upload.maximum_ram_size") - 8)
 
 
-env.BuildSources(
-    join("$BUILD_DIR", "sdk_files"),
-    sdk_dir,
-    ['+<{}>'.format(s) for s in sdk_files]
-)
+if sdk_files:
+    env.BuildSources(
+        join("$BUILD_DIR", "sdk_files"),
+        sdk_dir,
+        ['+<{}>'.format(s) for s in sdk_files]
+    )
 
 # env.Prepend(LIBS=libs)
