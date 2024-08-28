@@ -86,14 +86,14 @@ void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p
 
 void app_error_fault_handler(uint32_t id, uint32_t pc, uint32_t info)
 {
-    NRF_LOG_ERROR("Received a fault! id: 0x%08x, pc: 0x%08x, info: 0x%08x", id, pc, info);
+    NRF_LOG_ERROR("fault 0x%08x, pc: 0x%08x, info: 0x%08x", id, pc, info);
     on_error();
 }
 
 
 void app_error_handler_bare(uint32_t error_code)
 {
-    NRF_LOG_ERROR("Received an error: 0x%08x!", error_code);
+    NRF_LOG_ERROR("error: 0x%08x!", error_code);
     on_error();
 }
 
@@ -139,7 +139,7 @@ int main(void)
     ret_val = nrf_bootloader_flash_protect(BOOTLOADER_START_ADDR, BOOTLOADER_SIZE);
     APP_ERROR_CHECK(ret_val);
 
-    ret_val = NRF_LOG_INIT(app_timer_cnt_get);
+    ret_val = NRF_LOG_INIT(NULL);
     APP_ERROR_CHECK(ret_val);
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 
@@ -151,7 +151,7 @@ int main(void)
 
     NRF_LOG_FLUSH();
 
-    NRF_LOG_ERROR("After main, should never be reached.");
+    NRF_LOG_ERROR("never");
     NRF_LOG_FLUSH();
 
     APP_ERROR_CHECK_BOOL(false);
