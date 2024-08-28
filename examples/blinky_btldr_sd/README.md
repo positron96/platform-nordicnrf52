@@ -1,0 +1,1 @@
+Same blinky, but with linker file that respects softdevice and bootloader
