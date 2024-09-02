@@ -170,7 +170,7 @@
 
 
 #ifndef NRF_BL_DFU_ENTER_METHOD_PINRESET
-#define NRF_BL_DFU_ENTER_METHOD_PINRESET 0
+#define NRF_BL_DFU_ENTER_METHOD_PINRESET   1
 #endif
 
 // <q> NRF_BL_DFU_ENTER_METHOD_GPREGRET  - Enter DFU mode when bit 0 is set in the NRF_POWER_GPREGRET register.
@@ -1816,30 +1816,30 @@
 
 //==========================================================
 // <q> NRF_FPRINTF_ENABLED  - Enable/disable fprintf module.
- 
+
 
 #ifndef NRF_FPRINTF_ENABLED
 #define NRF_FPRINTF_ENABLED 1
 #endif
 
 // <q> NRF_FPRINTF_FLAG_AUTOMATIC_CR_ON_LF_ENABLED  - For each printed LF, function will add CR.
- 
+
 
 #ifndef NRF_FPRINTF_FLAG_AUTOMATIC_CR_ON_LF_ENABLED
-#define NRF_FPRINTF_FLAG_AUTOMATIC_CR_ON_LF_ENABLED 1
+#define NRF_FPRINTF_FLAG_AUTOMATIC_CR_ON_LF_ENABLED  0
 #endif
 
 // <q> NRF_FPRINTF_DOUBLE_ENABLED  - Enable IEEE-754 double precision formatting.
- 
+
 
 #ifndef NRF_FPRINTF_DOUBLE_ENABLED
 #define NRF_FPRINTF_DOUBLE_ENABLED 0
 #endif
 
-// </h> 
+// </h>
 //==========================================================
 
-// </h> 
+// </h>
 //==========================================================
 
 
@@ -1854,7 +1854,7 @@
 
 
 // <q> NRF_LOG_STR_FORMATTER_TIMESTAMP_FORMAT_ENABLED  - nrf_log_str_formatter - Log string formatter
- 
+
 
 #ifndef NRF_LOG_STR_FORMATTER_TIMESTAMP_FORMAT_ENABLED
 #define NRF_LOG_STR_FORMATTER_TIMESTAMP_FORMAT_ENABLED 0
@@ -1866,7 +1866,7 @@
 #ifndef NRF_LOG_BACKEND_RTT_ENABLED
 #define NRF_LOG_BACKEND_RTT_ENABLED 1
 #endif
-// <o> NRF_LOG_BACKEND_RTT_TEMP_BUFFER_SIZE - Size of buffer for partially processed strings. 
+// <o> NRF_LOG_BACKEND_RTT_TEMP_BUFFER_SIZE - Size of buffer for partially processed strings.
 // <i> Size of the buffer is a trade-off between RAM usage and processing.
 // <i> if buffer is smaller then strings will often be fragmented.
 // <i> It is recommended to use size which will fit typical log and only the
@@ -1876,12 +1876,12 @@
 #define NRF_LOG_BACKEND_RTT_TEMP_BUFFER_SIZE 64
 #endif
 
-// <o> NRF_LOG_BACKEND_RTT_TX_RETRY_DELAY_MS - Period before retrying writing to RTT 
+// <o> NRF_LOG_BACKEND_RTT_TX_RETRY_DELAY_MS - Period before retrying writing to RTT
 #ifndef NRF_LOG_BACKEND_RTT_TX_RETRY_DELAY_MS
 #define NRF_LOG_BACKEND_RTT_TX_RETRY_DELAY_MS 1
 #endif
 
-// <o> NRF_LOG_BACKEND_RTT_TX_RETRY_CNT - Writing to RTT retries. 
+// <o> NRF_LOG_BACKEND_RTT_TX_RETRY_CNT - Writing to RTT retries.
 // <i> If RTT fails to accept any new data after retries
 // <i> module assumes that host is not active and on next
 // <i> request it will perform only one write attempt.
@@ -5547,13 +5547,13 @@
 // </h>
 //==========================================================
 
-// <h> nRF_Segger_RTT 
+// <h> nRF_Segger_RTT
 
 //==========================================================
 // <h> segger_rtt - SEGGER RTT
 
 //==========================================================
-// <o> SEGGER_RTT_CONFIG_BUFFER_SIZE_UP - Size of upstream buffer. 
+// <o> SEGGER_RTT_CONFIG_BUFFER_SIZE_UP - Size of upstream buffer.
 // <i> Note that either @ref NRF_LOG_BACKEND_RTT_OUTPUT_BUFFER_SIZE
 // <i> or this value is actually used. It depends on which one is bigger.
 
@@ -5561,37 +5561,37 @@
 #define SEGGER_RTT_CONFIG_BUFFER_SIZE_UP 512
 #endif
 
-// <o> SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS - Maximum number of upstream buffers. 
+// <o> SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS - Maximum number of upstream buffers.
 #ifndef SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS
 #define SEGGER_RTT_CONFIG_MAX_NUM_UP_BUFFERS 2
 #endif
 
-// <o> SEGGER_RTT_CONFIG_BUFFER_SIZE_DOWN - Size of downstream buffer. 
+// <o> SEGGER_RTT_CONFIG_BUFFER_SIZE_DOWN - Size of downstream buffer.
 #ifndef SEGGER_RTT_CONFIG_BUFFER_SIZE_DOWN
 #define SEGGER_RTT_CONFIG_BUFFER_SIZE_DOWN 16
 #endif
 
-// <o> SEGGER_RTT_CONFIG_MAX_NUM_DOWN_BUFFERS - Maximum number of downstream buffers. 
+// <o> SEGGER_RTT_CONFIG_MAX_NUM_DOWN_BUFFERS - Maximum number of downstream buffers.
 #ifndef SEGGER_RTT_CONFIG_MAX_NUM_DOWN_BUFFERS
 #define SEGGER_RTT_CONFIG_MAX_NUM_DOWN_BUFFERS 2
 #endif
 
 // <o> SEGGER_RTT_CONFIG_DEFAULT_MODE  - RTT behavior if the buffer is full.
- 
+
 
 // <i> The following modes are supported:
 // <i> - SKIP  - Do not block, output nothing.
 // <i> - TRIM  - Do not block, output as much as fits.
 // <i> - BLOCK - Wait until there is space in the buffer.
-// <0=> SKIP 
-// <1=> TRIM 
-// <2=> BLOCK_IF_FIFO_FULL 
+// <0=> SKIP
+// <1=> TRIM
+// <2=> BLOCK_IF_FIFO_FULL
 
 #ifndef SEGGER_RTT_CONFIG_DEFAULT_MODE
 #define SEGGER_RTT_CONFIG_DEFAULT_MODE 0
 #endif
 
-// </h> 
+// </h>
 //==========================================================
 
 

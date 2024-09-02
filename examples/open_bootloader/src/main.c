@@ -143,16 +143,13 @@ int main(void)
     APP_ERROR_CHECK(ret_val);
     NRF_LOG_DEFAULT_BACKENDS_INIT();
 
-    NRF_LOG_INFO("Open USB bootloader started");
+    NRF_LOG_DEBUG("Bootloader");
     NRF_LOG_FLUSH();
 
     ret_val = nrf_bootloader_init(dfu_observer);
     APP_ERROR_CHECK(ret_val);
 
-    NRF_LOG_FLUSH();
-
-    NRF_LOG_ERROR("never");
-    NRF_LOG_FLUSH();
+    NRF_LOG_ERROR("unreachable");
 
     APP_ERROR_CHECK_BOOL(false);
 }
