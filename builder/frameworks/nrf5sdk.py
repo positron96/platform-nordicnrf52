@@ -107,7 +107,7 @@ if softdevice:
     softdevice_dir = join(components_dir, 'softdevice', softdevice)
     env.Append(
         CPPPATH=[
-            join(softdevice, 'headers'),
+            join(softdevice_dir, 'headers'),
             join(components_dir, 'softdevice', 'common'),
         ],
         CPPDEFINES=[
