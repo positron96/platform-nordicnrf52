@@ -53,6 +53,9 @@
 #include "nrf_delay.h"
 #include "boards.h"
 
+#include <nrf_power.h>
+#include <nrf_bootloader_info.h>
+
 /**
  * @brief Function for application main entry.
  */
@@ -62,14 +65,28 @@ int main(void)
     bsp_board_init(BSP_INIT_LEDS);
 
     /* Toggle LEDs. */
-    while (true)
-    {
-        for (int i = 0; i < LEDS_NUMBER; i++)
-        {
-            bsp_board_led_invert(i);
-            nrf_delay_ms(500);
-        }
+    for(size_t n=0; n<10; n++) {
+        bsp_board_led_invert(0);
+        nrf_delay_ms(500);
     }
+
+    // uint32_t err_code;
+    // err_code = sd_power_gpregret_clr(0, 0xffffffff);
+    // VERIFY_SUCCESS(err_code);
+    // err_code = sd_power_gpregret_set(0, BOOTLOADER_DFU_START);
+    // VERIFY_SUCCESS(err_code);
+    // nrf_pwr_mgmt_shutdown(NRF_PWR_MGMT_SHUTDOWN_GOTO_DFU);
+
+    bsp_board_leds_off();
+    nrf_delay_ms(500);
+    bsp_board_leds_on();
+    nrf_delay_ms(2000);
+    bsp_board_leds_off();
+
+    nrf_power_gpregret_set(BOOTLOADER_DFU_START);
+    //nrf_pwr_mgmt_shutdown(NRF_PWR_MGMT_SHUTDOWN_GOTO_DFU);
+    NVIC_SystemReset();
+
 }
 
 /**
