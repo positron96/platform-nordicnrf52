@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import sys
 from platform import system
 from os import makedirs
@@ -51,6 +52,9 @@ env = DefaultEnvironment()
 platform = env.PioPlatform()
 board = env.BoardConfig()
 
+self_dir = os.path.dirname(env.subst('$BUILD_SCRIPT'))
+platform_dir = os.path.abspath(join(self_dir, '..'))
+
 env.Replace(
     AR="arm-none-eabi-ar",
     AS="arm-none-eabi-as",
@@ -87,7 +91,7 @@ env.Append(
                 "binary",
                 "$SOURCES",
                 "$TARGET"
-            ]), "Building $TARGET"),
+            ]), "Building $TARGET bin"),
             suffix=".bin"
         ),
         ElfToHex=Builder(
@@ -99,7 +103,7 @@ env.Append(
                 ".eeprom",
                 "$SOURCES",
                 "$TARGET"
-            ]), "Building $TARGET"),
+            ]), "Building $TARGET hex"),
             suffix=".hex"
         ),
         AddSoftDeviceToHex=Builder(
@@ -114,11 +118,10 @@ env.Append(
                 "$TARGET",
                 "-intel",
                 "--line-length=44"
-            ]), "Building $TARGET"),
+            ]), "Building $TARGET + Softdevice"),
             suffix=".hex"
-        )
-    )
-)
+        ),
+))
 
 upload_protocol = env.subst("$UPLOAD_PROTOCOL")
 
@@ -192,7 +195,7 @@ if "nobuild" in COMMAND_LINE_TARGETS:
     target_firm = join("$BUILD_DIR", "${PROGNAME}.hex")
 else:
     target_elf = env.BuildProgram()
-      
+
     if "nrfutil" == upload_protocol:
         target_firm = env.PackageDfu(
             join("$BUILD_DIR", "${PROGNAME}"),
@@ -213,7 +216,7 @@ else:
         env.Depends(target_firm, "checkprogsize")
 
 AlwaysBuild(env.Alias("nobuild", target_firm))
-target_buildprog = env.Alias("buildprog", target_firm, target_firm)
+target_buildprog = env.Alias("buildprog", target_firm)
 
 if "DFUBOOTHEX" in env:
     env.Append(
@@ -269,7 +272,7 @@ target_size = env.AddPlatformTarget(
 )
 
 #
-# Target: Upload by default .bin file
+# Target: Upload file
 #
 
 debug_tools = env.BoardConfig().get("debug.tools", {})
@@ -421,6 +424,33 @@ else:
 env.AddPlatformTarget("upload", target_firm, upload_actions, "Upload")
 
 
+
+sd_req = env.GetProjectOption('custom_dfu_sd_req', '0x103')  # s112 7.2.0 by default
+pkg_gen_args = [
+    "--hw-version", "51" if "51" in board.get("build.mcu", "") else "52",
+    "--sd-req", sd_req,
+    "--application-version", "1",
+    "--app-boot-validation", "VALIDATE_GENERATED_CRC",
+]
+
+env.Append(
+    BUILDERS=dict(
+        PackageDfu=Builder(
+            action=env.VerboseAction(" ".join([
+                '"$PYTHONEXE"',
+                '"%s"' % join(platform_dir, 'tools', 'nrfutil', 'nrfutil-cli.py'),
+                "pkg",
+                "generate",
+                *pkg_gen_args,
+                "--application", "$SOURCES",
+                "$TARGET"
+            ]), "Packaging $TARGET"),
+            suffix=".zip"
+        ),
+    )
+)
+
+
 if "SOFTDEVICEHEX" in env:
 
     #
@@ -436,7 +466,7 @@ if "SOFTDEVICEHEX" in env:
         env.VerboseAction("$SIZEPRINTCMD", "Calculating size $SOURCE"),
         "Merged Size",
         "Calculate medged size",
-    )    
+    )
     target_merged = env.AddPlatformTarget(
         "build-merged",
         merged_size,
@@ -455,6 +485,21 @@ if "SOFTDEVICEHEX" in env:
         upload_actions,
         "Upload softdevice",
         "Upload only softdevice"
+    )
+
+    #
+    # Target: Make DFU archive
+    #
+
+    env.AddPlatformTarget(
+        "dfu_archive",
+        env.PackageDfu(
+            join("$BUILD_DIR", "${PROGNAME}"),
+            env.ElfToHex(join("$BUILD_DIR", "${PROGNAME}"), target_elf),
+        ),
+        [],
+        "Make DFU archive",
+        "Create DFU .zip with firmware",
     )
 
 #
