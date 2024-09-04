@@ -106,6 +106,18 @@ env.Append(
             ]), "Building $TARGET hex"),
             suffix=".hex"
         ),
+        HexToElf=Builder(
+            action=env.VerboseAction(" ".join([
+                "$OBJCOPY",
+                "-I",
+                "ihex",
+                "-O",
+                "elf32-littlearm",
+                "$SOURCES",
+                "$TARGET"
+            ]), "Building $TARGET elf from hex"),
+            suffix=".elf"
+        ),
         AddSoftDeviceToHex=Builder(
             action=env.VerboseAction(" ".join([
                 '"%s"' % join(platform.get_package_dir("tool-sreccat") or "",
@@ -125,54 +137,29 @@ env.Append(
 
 upload_protocol = env.subst("$UPLOAD_PROTOCOL")
 
-if "nrfutil" == upload_protocol or (
-    board.get("build.bsp.name", "nrf5") == "adafruit"
-    and "arduino" in env.get("PIOFRAMEWORK", [])
-):
-    env.Append(
-        BUILDERS=dict(
-            PackageDfu=Builder(
-                action=env.VerboseAction(" ".join([
-                    '"$PYTHONEXE"',
-                    '"%s"' % join(platform.get_package_dir(
-                        "tool-adafruit-nrfutil") or "", "adafruit-nrfutil.py"),
-                    "dfu",
-                    "genpkg",
-                    "--dev-type",
-                    "0x0052",
-                    "--sd-req",
-                    board.get("build.softdevice.sd_fwid"),
-                    "--application",
-                    "$SOURCES",
-                    "$TARGET"
-                ]), "Building $TARGET"),
-                suffix=".zip"
-            ),
-            SignBin=Builder(
-                action=env.VerboseAction(
-                    " ".join(
-                        [
-                            '"$PYTHONEXE"',
-                            '"%s"' % join(
-                                platform.get_package_dir(
-                                    "framework-arduinoadafruitnrf52"
-                                )
-                                or "",
-                                "tools",
-                                "pynrfbintool",
-                                "pynrfbintool.py",
-                            ),
-                            "--signature",
-                            "$TARGET",
-                            "$SOURCES",
-                        ]
-                    ),
-                    "Signing $SOURCES",
-                ),
-                suffix="_signature.bin",
-            ),
-        )
-    )
+# SignBin=Builder(
+#     action=env.VerboseAction(
+#         " ".join(
+#             [
+#                 '"$PYTHONEXE"',
+#                 '"%s"' % join(
+#                     platform.get_package_dir(
+#                         "framework-arduinoadafruitnrf52"
+#                     )
+#                     or "",
+#                     "tools",
+#                     "pynrfbintool",
+#                     "pynrfbintool.py",
+#                 ),
+#                 "--signature",
+#                 "$TARGET",
+#                 "$SOURCES",
+#             ]
+#         ),
+#         "Signing $SOURCES",
+#     ),
+#     suffix="_signature.bin",
+# ),
 
 
 if not env.get("PIOFRAMEWORK"):
@@ -218,47 +205,6 @@ else:
 AlwaysBuild(env.Alias("nobuild", target_firm))
 target_buildprog = env.Alias("buildprog", target_firm)
 
-if "DFUBOOTHEX" in env:
-    env.Append(
-        # Check the linker script for the correct location
-        BOOT_SETTING_ADDR=board.get("build.bootloader.settings_addr", "0x7F000")
-    )
-
-    env.AddPlatformTarget(
-        "dfu",
-        env.PackageDfu(
-            join("$BUILD_DIR", "${PROGNAME}"),
-            env.ElfToHex(join("$BUILD_DIR", "${PROGNAME}"), target_elf),
-        ),
-        target_firm,
-        "Generate DFU Image",
-    )
-
-    env.AddPlatformTarget(
-        "bootloader",
-        None,
-        [
-            env.VerboseAction(
-                "nrfjprog --program $DFUBOOTHEX -f nrf52 --chiperase",
-                "Uploading $DFUBOOTHEX",
-            ),
-            env.VerboseAction(
-                "nrfjprog --erasepage $BOOT_SETTING_ADDR -f nrf52",
-                "Erasing bootloader config",
-            ),
-            env.VerboseAction(
-                "nrfjprog --memwr $BOOT_SETTING_ADDR --val 0x00000001 -f nrf52",
-                "Disable CRC check",
-            ),
-            env.VerboseAction("nrfjprog --reset -f nrf52", "Reset nRF52"),
-        ],
-        "Burn Bootloader",
-    )
-
-if "bootloader" in COMMAND_LINE_TARGETS and "DFUBOOTHEX" not in env:
-    sys.stderr.write("Error. The board is missing the bootloader binary.\n")
-    env.Exit(1)
-
 #
 # Target: Print binary size
 #
@@ -298,7 +244,7 @@ elif upload_protocol.startswith("blackmagic"):
             "-ex", "compare-sections",
             "-ex", "kill"
         ],
-        UPLOADCMD="$UPLOADER $UPLOADERFLAGS $BUILD_DIR/${PROGNAME}.elf"
+        UPLOADCMD="$UPLOADER $UPLOADERFLAGS $SOURCE"
     )
     upload_actions = [
         env.VerboseAction(env.AutodetectUploadPort, "Looking for BlackMagic port..."),
@@ -471,7 +417,7 @@ if "SOFTDEVICEHEX" in env:
         "build-merged",
         merged_size,
         [],
-        "Build with softdevice",
+        "Build with SoftDevice",
         "Create .hex with firmware and softdevice",
     )
 
@@ -479,12 +425,17 @@ if "SOFTDEVICEHEX" in env:
     # Target: upload softdevice only
     #
 
+    softdev_file = env['SOFTDEVICEHEX']
+    if upload_protocol.startswith("blackmagic"):
+        # BMP needs a hex
+        softdev_file = env.HexToElf(join("$BUILD_DIR", "softdevice"), softdev_file)
+
     env.AddPlatformTarget(
         "upload-softdevice",
-        env['SOFTDEVICEHEX'],
+        softdev_file,
         upload_actions,
-        "Upload softdevice",
-        "Upload only softdevice"
+        "Flash SoftDevice",
+        "Flash only SoftDevice"
     )
 
     #

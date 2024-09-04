@@ -149,7 +149,7 @@ int main(void)
     ret_val = nrf_bootloader_init(dfu_observer);
     APP_ERROR_CHECK(ret_val);
 
-    NRF_LOG_ERROR("unreachable");
+    NRF_LOG_ERROR("Unreachable");
 
     APP_ERROR_CHECK_BOOL(false);
 }

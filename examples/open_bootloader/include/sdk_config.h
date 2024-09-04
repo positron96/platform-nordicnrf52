@@ -211,7 +211,7 @@
 // <i> If 0, no inactivity timer will be used. Values 1-99 are invalid.
 
 #ifndef NRF_BL_DFU_INACTIVITY_TIMEOUT_MS
-#define NRF_BL_DFU_INACTIVITY_TIMEOUT_MS 120000
+#define NRF_BL_DFU_INACTIVITY_TIMEOUT_MS 300000
 #endif
 
 // </h>
@@ -1974,7 +1974,7 @@
 // <i> Log data is buffered and can be processed in idle.
 
 #ifndef NRF_LOG_DEFERRED
-#define NRF_LOG_DEFERRED  1
+#define NRF_LOG_DEFERRED   0
 #endif
 
 // <q> NRF_LOG_FILTERS_ENABLED  - Enable dynamic filtering of logs.
