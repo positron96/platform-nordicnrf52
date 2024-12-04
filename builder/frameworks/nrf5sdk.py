@@ -94,7 +94,7 @@ env.Append(
         "-Wl,--check-sections",
         "-Wl,--unresolved-symbols=report-all",
         "-Wl,--warn-common",
-        "-Wl,--warn-section-align",
+        #"-Wl,--warn-section-align",
         '-L{}'.format(join(nrfx_dir, 'mdk')),  # nrf_common.ld
     ],
 
