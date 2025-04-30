@@ -5,7 +5,7 @@
 
 antlib >= 1.1b0; sys_platform == 'win32'
 click
-# crcmod
+crcmod==1.7
 ecdsa
 intelhex
 libusb1==1.9.3
