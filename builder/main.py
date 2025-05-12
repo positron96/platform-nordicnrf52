@@ -165,6 +165,35 @@ upload_protocol = env.subst("$UPLOAD_PROTOCOL")
 if not env.get("PIOFRAMEWORK"):
     env.SConscript("frameworks/_bare.py")
 
+
+nrfutil_bin = join(platform_dir, 'tools', 'nrfutil', 'nrfutil-cli.py')
+
+sd_req = env.GetProjectOption('custom_dfu_sd_req', '0x103')  # s112 7.2.0 by default
+pkg_gen_args = [
+    "--hw-version", "51" if "51" in board.get("build.mcu", "") else "52",
+    "--sd-req", sd_req,
+    "--application-version", "1",
+    "--app-boot-validation", "VALIDATE_GENERATED_CRC",
+]
+
+env.Append(
+    BUILDERS=dict(
+        PackageDfu=Builder(
+            action=env.VerboseAction(" ".join([
+                '"$PYTHONEXE"',
+                '"{}"'.format(nrfutil_bin),
+                "pkg",
+                "generate",
+                *pkg_gen_args,
+                "--application", "$SOURCES",
+                "$TARGET"
+            ]), "Packaging $TARGET"),
+            suffix=".zip"
+        ),
+    )
+)
+
+
 #
 # Target: Build executable and linkable firmware
 #
@@ -264,8 +293,7 @@ elif upload_protocol == "nrfjprog":
 
 elif upload_protocol == "nrfutil":
     env.Replace(
-        UPLOADER=join(platform.get_package_dir(
-            "tool-adafruit-nrfutil") or "", "adafruit-nrfutil.py"),
+        UPLOADER=nrfutil_bin,
         UPLOADERFLAGS=[
             "dfu",
             "serial",
@@ -278,7 +306,7 @@ elif upload_protocol == "nrfutil":
         UPLOADCMD='"$PYTHONEXE" "$UPLOADER" $UPLOADERFLAGS -pkg $SOURCE'
     )
     upload_actions = [
-        env.VerboseAction(BeforeUpload, "Looking for upload port..."),
+        #env.VerboseAction(BeforeUpload, "Looking for upload port..."),
         env.VerboseAction("$UPLOADCMD", "Uploading $SOURCE")
     ]
 
@@ -368,33 +396,6 @@ else:
     sys.stderr.write("Warning! Unknown upload protocol %s\n" % upload_protocol)
 
 env.AddPlatformTarget("upload", target_firm, upload_actions, "Upload")
-
-
-
-sd_req = env.GetProjectOption('custom_dfu_sd_req', '0x103')  # s112 7.2.0 by default
-pkg_gen_args = [
-    "--hw-version", "51" if "51" in board.get("build.mcu", "") else "52",
-    "--sd-req", sd_req,
-    "--application-version", "1",
-    "--app-boot-validation", "VALIDATE_GENERATED_CRC",
-]
-
-env.Append(
-    BUILDERS=dict(
-        PackageDfu=Builder(
-            action=env.VerboseAction(" ".join([
-                '"$PYTHONEXE"',
-                '"%s"' % join(platform_dir, 'tools', 'nrfutil', 'nrfutil-cli.py'),
-                "pkg",
-                "generate",
-                *pkg_gen_args,
-                "--application", "$SOURCES",
-                "$TARGET"
-            ]), "Packaging $TARGET"),
-            suffix=".zip"
-        ),
-    )
-)
 
 
 if "SOFTDEVICEHEX" in env:
