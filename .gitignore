@@ -1,3 +1,4 @@
 *.pyc
 .piolibdeps
 .pio
+tools/nrfutil/site-packages
